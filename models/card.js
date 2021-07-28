@@ -8,52 +8,28 @@ const cardSchema = new mongoose.Schema({
     required: true,
     minlength: 2,
     maxlength: 30,
-    validate: {
-      validator(v) {
-        return v >= 1
-      },
-      message: "Вы не заполнили это поле",
-    },
   },
   link: {
     type: String,
     required: true,
-    validate: {
-      validator(v) {
-        return v >= 1
-      },
-      message: "Вы не заполнили это поле",
-    },
   },
   owner: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     required: true,
-    validate: {
-      validator(v) {
-        return v >= 1
-      },
-      message: "Вы не заполнили это поле",
-    },
   },
   likes: {
-    type: String,
-    required: true,
-    validate: {
-      validator(v) {
-        return v >= 1
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
       },
-      message: "Вы не заполнили это поле",
-    },
+    ],
+    default: [],
   },
   createdAt : {
     type: Date,
-    required: true,
-    validate: {
-      validator(v) {
-        return v >= 1
-      },
-      message: "Вы не заполнили это поле",
-    },
+    default: Date.now,
   },
 });
 
