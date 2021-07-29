@@ -21,6 +21,14 @@ app.use(express.urlencoded({
 }));
 app.use('/', usersRouter);
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '6102ca6d5d45382ab85bbaf2'
+  };
+
+  next();
+});
+
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`App listening on port ${PORT}`);
