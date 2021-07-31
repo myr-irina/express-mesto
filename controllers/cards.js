@@ -7,7 +7,7 @@ const getCards = (req, res) =>
     .catch(() =>
       res
         .status(500)
-        .send({ message: `Запрашиваемый ресурс не найден.` })
+        .send({ message: `Ошибка сервера.` })
     );
 
 const createCard = (req, res) => {
@@ -19,56 +19,61 @@ const createCard = (req, res) => {
     .catch(() =>
       res
         .status(500)
-        .send({ message: `Ошибка при создании карточки.` })
+        .send({ message: `Ошибка сервера.` })
     );
 };
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
-  return Card.findByIdAndRemove(cardId)
+  Card.findByIdAndRemove(cardId)
+    .orFail(new Error('NotValidId'))
     .then((card) => res.status(200).send(card))
-    .catch(() =>
-      res
-        .status(500)
-        .send({ message: `Ошибка при удалении карточки.` })
-    );
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 const likeCard = (req, res) => {
   const { cardId } = req.params;
 
-  return Card.findByIdAndUpdate(
+  Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
+    .orFail(new Error('NotValidId'))
     .then((card) => res.status(200).send(card))
-    .catch(() =>
-      res
-        .status(500)
-        .send({
-          message: `На сервере произошла ошибка при лайке карточки.`,
-        })
-    );
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 const dislikeCard = (req, res) => {
   const { cardId } = req.params;
 
-  return Card.findByIdAndUpdate(
+  Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: req.user._id } },
     { new: true }
   )
+    .orFail(new Error('NotValidId'))
     .then((card) => res.status(200).send(card))
-    .catch(() =>
-      res
-        .status(500)
-        .send({
-          message: `На сервере произошла ошибка при дизлайке карточки.`,
-        })
-    );
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 

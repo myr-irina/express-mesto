@@ -1,74 +1,73 @@
 /* eslint-disable no-undef */
 // eslint-disable-next-line no-undef
 const User = require("../models/user");
-//возвращаем всех юзеров
+
 const getUsers = (req, res) =>
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() =>
-      res
-        .status(500)
-        .send({ message: `Запрашиваемый ресурс не найден.` })
-    );
+    .catch(() => res.status(500).send({ message: `Ошибка сервера.` }));
 
-//возвращаем пользователя по _id
 const getUserById = (req, res) =>
   User.findById(req.params.id)
+    .orFail(new Error("NotValidId"))
     .then((user) => res.status(200).send(user))
-    .catch(() =>
-      res
-        .status(500)
-        .send({
-          message: `Запрашиваемый пользователь не найден.`,
-        })
-    );
+    .catch((err) => {
 
-//создаем пользователя
+      if (err.message === "NotValidId") {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (err.name === "Not found") {
+        res.status(404).send({ message: "Пользователя нет в базе" });
+      } else {
+        res.status(500).send({ message: `Ошибка сервера.` });
+      }
+    });
+
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body; //получим из объекта запроса имя, описание и аватар пользователя
-
-  return (
-    User.create({ name, about, avatar }) //создадим документ на основе пришедших данных
-      .then((user) => res.status(200).send(user)) //вернем записанные в базу данные
-      //если данные не записались, вернем ошибку
-      .catch(() =>
-        res
-          .status(500)
-          .send({ message: `Ошибка при создании пользователя.` })
-      )
-  );
+  const { name, about, avatar } = req.body;
+  return User.create({ name, about, avatar })
+    .then((user) => res.status(200).send(user))
+    .catch(() => res.status(500).send({ message: `Ошибка сервера.` }));
 };
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
 
-  return User.findByIdAndUpdate(
+  User.findByIdAndUpdate(
     req.user._id,
     { name: name, about: about },
     { new: true }
   )
+    .orFail(new Error("NotValidId"))
     .then((user) => res.status(200).send(user))
-    .catch(() =>
-      res
-        .status(500)
-        .send({
-          message: `Ошибка при обновлении профиля пользователя.`,
-        })
-    );
+    .catch((err) => {
+
+      if (err.message === "NotValidId") {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (err.name === "Not found") {
+        res.status(404).send({ message: "Пользователя нет в базе" });
+      } else {
+        res.status(500).send({ message: `Ошибка сервера.` });
+      }
+    });
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  return User.findByIdAndUpdate(req.user._id, { avatar: avatar }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { avatar: avatar }, { new: true })
+
+    .orFail(new Error("NotValidId"))
     .then((user) => res.status(200).send(user))
-    .catch(() =>
-      res
-        .status(500)
-        .send({
-          message: `Ошибка при обновлении аватара пользователя.`,
-        })
-    );
+    .catch((err) => {
+      console.log(err)
+      if (err.message === "NotValidId") {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (err.name === "Not found") {
+        res.status(404).send({ message: "Пользователя нет в базе" });
+      } else {
+        res.status(500).send({ message: `Ошибка сервера.` });
+      }
+    });
 };
 
 module.exports = {
