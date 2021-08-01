@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-undef
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-// Опишем схему карточки:
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -15,14 +14,14 @@ const cardSchema = new mongoose.Schema({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: 'user',
     required: true,
   },
   likes: {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
+        ref: 'user',
       },
     ],
     default: [],
@@ -34,4 +33,4 @@ const cardSchema = new mongoose.Schema({
 });
 
 // eslint-disable-next-line no-undef
-module.exports = mongoose.model("card", cardSchema);
+module.exports = mongoose.model('card', cardSchema);
