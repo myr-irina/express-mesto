@@ -6,7 +6,7 @@ const getCards = (req, res) => Card.find({})
   .then((cards) => res.status(200).send(cards))
   .catch(() => res
     .status(500)
-    .send({ message: 'Ошибка по умолчанию.' }));
+    .send({ message: 'Ошибка сервера.' }));
 
 const createCard = (req, res) => {
     const { name, link } = req.body;
@@ -18,25 +18,24 @@ const createCard = (req, res) => {
         if (err.name === 'ValidationError') {
           res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
         } else {
-          res.status(500).send({ message: 'Ошибка по умолчанию.' });
+          res.status(500).send({ message: 'Ошибка сервера.' });
         }
       });
   };
 
-const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params._id)
-    .orFail(new Error('NotValidId'))
-    .then((card) => res.status(200).send(card));
-    // eslint-disable-next-line no-undef
-    console.log(card)
+  const deleteCard = (req, res) => {
+    const { cardId } = req.params;
+
+  Card.findByIdAndRemove(cardId)
+    .orFail(new Error('Error'))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
-      console.log(err);
        if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
-      } else if (err.name === 'Not Found') {
+        res.status(400).send({ message: 'Ошибка в запросе.' });
+      } else if (err.name === 'Error') {
         res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию.' });
+        res.status(500).send({ message: 'Ошибка сервера.' });
       }
     });
 };
@@ -48,17 +47,19 @@ const likeCard = (req, res) => {
     cardId,
     // eslint-disable-next-line no-underscore-dangle
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true, runValidators: true },
   )
-    .orFail(new Error('NotValidId'))
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Карточка не найдена' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию.' });
-      }
-    });
+  .orFail(new Error('Error'))
+  .then((card) => res.status(200).send(card))
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
+    } else if (err.name === 'Error') {
+      res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+    } else {
+      res.status(500).send({ message: 'Ошибка сервера.' });
+    }
+  });
 };
 
 const dislikeCard = (req, res) => {
@@ -68,17 +69,19 @@ const dislikeCard = (req, res) => {
     cardId,
     // eslint-disable-next-line no-underscore-dangle
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true, runValidators: true },
   )
-    .orFail(new Error('NotValidId'))
-    .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Карточка не найдена' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию.' });
-      }
-    });
+  .orFail(new Error('Error'))
+  .then((card) => res.status(200).send(card))
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка.' });
+    } else if (err.name === 'Error') {
+      res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+    } else {
+      res.status(500).send({ message: 'Ошибка сервера.' });
+    }
+  });
 };
 
 module.exports = {
