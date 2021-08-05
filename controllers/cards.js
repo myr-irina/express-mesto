@@ -32,7 +32,7 @@ const createCard = (req, res) => {
     .catch((err) => {
        if (err.name === 'CastError') {
         res.status(400).send({ message: 'Ошибка в запросе.' });
-      } else if (err.name === 'Error') {
+      } else if (err.message === 'Error') {
         res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера.' });
@@ -54,7 +54,7 @@ const likeCard = (req, res) => {
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
-    } else if (err.name === 'Error') {
+    } else if (err.message === 'Error') {
       res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
     } else {
       res.status(500).send({ message: 'Ошибка сервера.' });
@@ -76,7 +76,7 @@ const dislikeCard = (req, res) => {
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка.' });
-    } else if (err.name === 'Error') {
+    } else if (err.message === 'Error') {
       res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
     } else {
       res.status(500).send({ message: 'Ошибка сервера.' });

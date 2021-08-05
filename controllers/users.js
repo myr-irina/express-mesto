@@ -13,7 +13,7 @@ const getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Ошибка при запросе.' });
-      } else if (err.name === 'NotFound') {
+      } else if (err.message === 'NotFound') {
         res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера.' });
@@ -23,13 +23,21 @@ const getUserById = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
+
   return User.create({ name, about, avatar })
     .then((user) => res.status(200).send(user))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера.' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера.' });
+      }
+    });
 };
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
+  console.log(req.body);
 
   User.findByIdAndUpdate(
     req.user._id,
@@ -41,7 +49,7 @@ const updateProfile = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      } else if (err.name === 'Error') {
+      } else if (err.message === 'Error') {
         res.status(404).send({ message: 'Пользователя нет в базе' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера.' });
@@ -59,7 +67,7 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (err.name === 'Error') {
+      } else if (err.message === 'Error') {
         res.status(404).send({ message: 'Пользователя нет в базе' });
       } else {
         res.status(500).send({ message: 'Ошибка сервера.' });
