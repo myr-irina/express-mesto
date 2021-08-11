@@ -24,16 +24,7 @@ app.use(
     extended: true,
   }),
 );
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6102ca6d5d45382ab85bbaf2',
-  };
 
-  next();
-});
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден.' });
-});
 app.post('/signin', login);
 app.post('/signup', createUser);
 
@@ -41,6 +32,9 @@ app.use(auth);
 
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден.' });
+});
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

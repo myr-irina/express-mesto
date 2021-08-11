@@ -23,12 +23,19 @@ const createCard = (req, res) => {
       });
   };
 
-  const deleteCard = (req, res) => {
-    const { cardId } = req.params;
+const deleteCard = (req, res) => {
+  const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
     .orFail(new Error('Error'))
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if (req.user._id !== card.owner.toString()) {
+        res.status(403).send({ message: 'Чужую карточку нельзя удалить.' });
+      }
+      card.remove();
+      res.status(200)
+        .send({ message: `Карточка с id ${card.id} успешно удалена!` });
+    })
     .catch((err) => {
        if (err.name === 'CastError') {
         res.status(400).send({ message: 'Ошибка в запросе.' });
