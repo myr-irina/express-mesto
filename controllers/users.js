@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const getUsers = (req, res) => User.find({})
@@ -27,7 +28,6 @@ const createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-
   // хэшируем пароль
   bcrypt
     .hash(password, 10)
@@ -96,10 +96,33 @@ const updateAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send({ message: 'Email и пароль не могут быть пустыми' });
+  }
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+      // отправим токен, браузер сохранит его в куках
+      res
+        .cookie('jwt', token, {
+          httpOnly: true,
+        })
+        .send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   updateProfile,
   updateAvatar,
+  login,
 };

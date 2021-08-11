@@ -36,6 +36,8 @@ app.use('/cards', cardsRouter);
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден.' });
 });
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
