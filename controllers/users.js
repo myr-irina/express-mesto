@@ -6,6 +6,23 @@ const getUsers = (req, res) => User.find({})
   .then((users) => res.status(200).send(users))
   .catch(() => res.status(500).send({ message: 'Ошибка сервера.' }));
 
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .orFail(new Error('NotFound'))
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Ошибка при запросе.' });
+      } else if (err.message === 'NotFound') {
+        res
+          .status(404)
+          .send({ message: 'Пользователь по указанному _id не найден.' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера.' });
+      }
+    });
+};
+
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .orFail(new Error('NotFound'))
@@ -125,4 +142,5 @@ module.exports = {
   updateProfile,
   updateAvatar,
   login,
+  getCurrentUser,
 };
