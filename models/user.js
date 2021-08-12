@@ -33,26 +33,29 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8,
+    select: false,
   },
 });
 
-// добавим метод к-ый, возвращает объект пользователя или ошибку
+// добавим метод к-ый, проверяет почту или пароль и возвращает объект пользователя или ошибку
+// eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email }).then((user) => {
-    // не нашёлся — отклоняем промис
-    if (!user) {
-      return Promise.reject(new Error('Неправильные почта или пароль'));
-    }
-    // нашёлся — сравниваем хеши
-    return bcrypt.compare(password, user.password)
-      .then((matched) => {
+  return this.findOne({ email })
+    .select('+password')
+    .then((user) => {
+      // не нашёлся — отклоняем промис
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      // нашёлся — сравниваем хеши
+      return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
           return Promise.reject(new Error('Неправильные почта или пароль'));
         }
 
         return user;
       });
-  });
+    });
 };
 
 module.exports = mongoose.model('user', userSchema);
