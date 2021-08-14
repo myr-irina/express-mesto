@@ -67,7 +67,7 @@ const createUser = (req, res, next) => {
             email,
             password: hash, // записываем хэш в базу
           }))
-          .then((user) => res.status(201).send(user))
+          .then((user) => res.status(201).send(user.toJSON()))
           .catch((err) => {
             if (err.name === 'ValidationError') {
               next(

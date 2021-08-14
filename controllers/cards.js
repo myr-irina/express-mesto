@@ -15,7 +15,11 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании карточки.'));
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные при создании карточки.',
+          ),
+        );
       } else {
         next(err);
       }
@@ -25,15 +29,15 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .orFail(new Error('Error'))
     .then((card) => {
       if (req.user._id !== card.owner.toString()) {
         next(new ForbiddenError('Чужую карточку нельзя удалить.'));
-      } else {
-        Card.deleteOne(card)
-          .then(() => res.status(200).send({ message: `Карточка с id ${card.id} успешно удалена!` }));
       }
+      Card.deleteOne(card).then(() => res
+        .status(200)
+        .send({ message: `Карточка с id ${card.id} успешно удалена!` }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -58,7 +62,11 @@ const likeCard = (req, res, next) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные для постановки лайка.'));
+        next(
+          new BadRequestError(
+            'Переданы некорректные данные для постановки лайка.',
+          ),
+        );
       } else if (err.message === 'Error') {
         next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } else {
@@ -79,7 +87,9 @@ const dislikeCard = (req, res, next) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные для снятия лайка.'));
+        next(
+          new BadRequestError('Переданы некорректные данные для снятия лайка.'),
+        );
       } else if (err.message === 'Error') {
         next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } else {

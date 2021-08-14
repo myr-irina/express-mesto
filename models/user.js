@@ -35,10 +35,17 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
   },
 });
+
+function toJSON() {
+  const obj = this.toObject;
+  delete obj.password;
+  return obj;
+}
+
+userSchema.methods.toJSON = toJSON;
 
 // добавим метод к-ый, проверяет почту или пароль и возвращает объект пользователя или ошибку
 // eslint-disable-next-line func-names
@@ -52,7 +59,6 @@ userSchema.statics.findUserByCredentials = function (email, password) {
       }
       // нашёлся — сравниваем хеши
       return bcrypt.compare(password, user.password).then((matched) => {
-        console.log(password);
         if (!matched) {
           return Promise.reject(new Error('Неправильные почта или пароль'));
         }

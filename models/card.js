@@ -1,4 +1,5 @@
-// eslint-disable-next-line no-undef
+const { isURL } = require('validator');
+
 const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
@@ -11,6 +12,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (v) => isURL(v, { require_protocol: true }),
+      message: 'Неправильный формат ссылки',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,5 +37,4 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
-// eslint-disable-next-line no-undef
 module.exports = mongoose.model('card', cardSchema);
