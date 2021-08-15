@@ -34,10 +34,11 @@ const deleteCard = (req, res, next) => {
     .then((card) => {
       if (req.user._id !== card.owner.toString()) {
         next(new ForbiddenError('Чужую карточку нельзя удалить.'));
+      } else {
+        Card.deleteOne(card).then(() => res
+          .status(200)
+          .send({ message: `Карточка с id ${card.id} успешно удалена!` }));
       }
-      Card.deleteOne(card).then(() => res
-        .status(200)
-        .send({ message: `Карточка с id ${card.id} успешно удалена!` }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
