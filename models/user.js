@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
 });
 
 function toJSON() {
-  const obj = this.toObject;
+  const obj = this.toObject();
   delete obj.password;
   return obj;
 }
